@@ -21,7 +21,9 @@ void Button::begin(void)
 {
     this->_lastEdge = millis();
     this->_state = this->read();
-    this->_previousState = !this->_state;
+    this->_previousState = this->_state;
+
+    if (this->_state && this->_CallBackOnPress != nullptr) this->_CallBackOnPress();
 }
 
 bool Button::read(void) { return digitalRead(this->_pin) ^ this->_inversed; }

@@ -2,9 +2,9 @@
 
 Button::Button(void) {}
 Button::~Button(void) {}
-Button::Button(int p, bool i) { this->setPin(p, i); }
+Button::Button(uint8_t p, bool i) { this->setPin(p, i); }
 
-void Button::setPin(int p, bool i)
+void Button::setPin(uint8_t p, bool i)
 {
     this->_pin = p;
     this->_inversed = i;

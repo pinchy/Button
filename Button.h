@@ -26,7 +26,7 @@ class Button
         Button();
         Button(int p, bool i = false);
         ~Button();
-        void begin(void);
+        void begin(bool triggerCallbackOnFirstLoop = false);
 
         void setCallBack(CallBack_t cbp, CallBack_t cbr = nullptr);
         void setDebounceTimeout(unsigned long t) { this->_debounceTimeout = t; };

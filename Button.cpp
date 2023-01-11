@@ -17,13 +17,15 @@ void Button::setCallBack(CallBack_t cbp, CallBack_t cbr)
     this->_CallBackOnRelease = cbr;
 }
 
-void Button::begin(void)
+void Button::begin(bool triggerCallbackOnFirstLoop)
 {
     this->_lastEdge = millis();
     this->_state = this->read();
-    this->_previousState = this->_state;
 
-    if (this->_state && this->_CallBackOnPress != nullptr) this->_CallBackOnPress();
+    if (triggerCallbackOnFirstLoop)
+        this->_previousState = !this->_state;
+    else
+        this->_previousState = this->_state;
 }
 
 bool Button::read(void) { return digitalRead(this->_pin) ^ this->_inversed; }

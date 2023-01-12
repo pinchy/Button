@@ -22,7 +22,7 @@ void Button::begin(bool triggerCallbackOnFirstLoop)
     this->_lastEdge = millis();
     this->_state = this->read();
 
-    if (triggerCallbackOnFirstLoop)
+    if (triggerCallbackOnFirstLoop && this->pressed())   // only trigger the ACTIVE state
         this->_previousState = !this->_state;
     else
         this->_previousState = this->_state;

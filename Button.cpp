@@ -2,9 +2,9 @@
 
 Button::Button(void) {}
 Button::~Button(void) {}
-Button::Button(uint8_t p, bool i) { this->setPin(p, i); }
+Button::Button(int p, bool i) { this->setPin(p, i); }
 
-void Button::setPin(uint8_t p, bool i)
+void Button::setPin(int p, bool i)
 {
     this->_pin = p;
     this->_inversed = i;
@@ -32,6 +32,8 @@ bool Button::read(void) { return digitalRead(this->_pin) ^ this->_inversed; }
 
 void Button::tick(void)
 {
+    if (this->isPinSet() == false) return;
+
     // debounce
     if (this->read() != this->_state)
     {

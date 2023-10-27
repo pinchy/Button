@@ -10,7 +10,7 @@ class Button
         typedef void (*CallBack_t)();
 
     private:
-        uint8_t _pin;
+        int _pin = -1;
         bool _state;
         bool _previousState;
         bool _inversed;
@@ -24,14 +24,16 @@ class Button
 
     public:
         Button();
-        Button(uint8_t p, bool i = false);
+        Button(int p, bool i = false);
         ~Button();
         void begin(bool triggerCallbackOnFirstLoop = false);
 
         void setCallBack(CallBack_t cbp, CallBack_t cbr = nullptr);
         void setDebounceTimeout(unsigned long t) { this->_debounceTimeout = t; };
 
-        void setPin(uint8_t p, bool i = false);
+        void setPin(int p, bool i = false);
+        int getPin() { return this->_pin; };
+        bool isPinSet() { return this->_pin != -1; };
         bool pressed(void);
         bool read(void);
         void tick(void);

@@ -2,6 +2,7 @@
 #define BUTTON_H
 
 #define BUTTON_DEFAULT_DEBOUNCE 100
+#define Sensor Button
 
 #include <Arduino.h>
 

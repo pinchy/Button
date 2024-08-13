@@ -2,9 +2,27 @@
 #define BUTTON_H
 
 #define BUTTON_DEFAULT_DEBOUNCE 100
+#define BUTTON_DEFAULT_LONGPRESS 1000
 #define Sensor Button
 
 #include <Arduino.h>
+
+enum CallBackType_t
+{
+    CALLBACK_PRESS = 0,
+    CALLBACK_RELEASE = 1,
+    CALLBACK_LONGPRESS = 2,
+    CALLBACK_LONGRELEASE = 3,
+    CALLBACK_NUM = 4
+};
+
+
+enum ButtonEdgeType_t
+{
+    BUTTON_EDGE_RISING,
+    BUTTON_EDGE_FALLING
+};
+
 
 class Button
 {
@@ -12,16 +30,19 @@ class Button
 
     private:
         int _pin = -1;
-        bool _state;
-        bool _previousState;
-        bool _inversed;
+        bool _state = false;
+        bool _previousShortPressState = false;
+        bool _previousLongPressState = false;
+        bool _inversed = false;
 
-        unsigned long _lastEdge;
+        unsigned long _lastEdge = 0;
         unsigned long _debounceTimeout = (unsigned long) BUTTON_DEFAULT_DEBOUNCE;
-        CallBack_t _CallBackOnPress = nullptr;
-        CallBack_t _CallBackOnRelease = nullptr;
+        unsigned long _longPressTimeout = (unsigned long) BUTTON_DEFAULT_LONGPRESS;
 
-        void _handleCallBacks(void);
+
+        CallBack_t _CallBacks[CALLBACK_NUM] = {nullptr, nullptr, nullptr};
+
+        void _triggerCallBack(CallBackType_t type);
 
     public:
         Button();
@@ -29,8 +50,9 @@ class Button
         ~Button();
         void begin(bool triggerCallbackOnFirstLoop = false);
 
-        void setCallBack(CallBack_t cbp, CallBack_t cbr = nullptr);
+        void setCallBack(CallBack_t cb, CallBackType_t type);
         void setDebounceTimeout(unsigned long t) { this->_debounceTimeout = t; };
+        void setLongPressTimeout(unsigned long t) { this->_longPressTimeout = t; };
 
         void setPin(int p, bool i = false);
         int getPin() { return this->_pin; };

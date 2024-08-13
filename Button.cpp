@@ -11,21 +11,24 @@ void Button::setPin(int p, bool i)
     pinMode(p, INPUT_PULLUP);
 }
 
-void Button::setCallBack(CallBack_t cbp, CallBack_t cbr)
+void Button::setCallBack(CallBack_t cb, CallBackType_t type)
 {
-    this->_CallBackOnPress = cbp;
-    this->_CallBackOnRelease = cbr;
+    if (type >= 0 && type < CALLBACK_NUM)
+    {
+        this->_CallBacks[type] = cb;
+    }
 }
 
 void Button::begin(bool triggerCallbackOnFirstLoop)
 {
     this->_lastEdge = millis();
     this->_state = this->read();
+    this->_previousLongPressState = this->_state;   // prevent the long press from triggering
 
     if (triggerCallbackOnFirstLoop && this->pressed())   // only trigger the ACTIVE state
-        this->_previousState = !this->_state;
+        this->_previousShortPressState = !this->_state;
     else
-        this->_previousState = this->_state;
+        this->_previousShortPressState = this->_state;
 }
 
 bool Button::read(void) { return digitalRead(this->_pin) ^ this->_inversed; }
@@ -34,35 +37,56 @@ void Button::tick(void)
 {
     if (this->isPinSet() == false) return;
 
-    // debounce
-    if (this->read() != this->_state)
+    bool isPressed = this->read();
+    bool edge = (isPressed != this->_state);
+
+    if (edge)
     {
-        this->_lastEdge = millis();   // if an edge is detected, reset the last edge detect
-        this->_state = this->read();
+        this->_state = isPressed;
+        ButtonEdgeType_t edgeType = (this->_state) ? BUTTON_EDGE_RISING : BUTTON_EDGE_FALLING;
+
+        if (edgeType == BUTTON_EDGE_FALLING)
+        {
+            if (millis() - this->_lastEdge > this->_longPressTimeout)
+            {
+                this->_triggerCallBack(CALLBACK_LONGRELEASE);
+                this->_previousShortPressState = this->_state;
+                this->_previousLongPressState = this->_state;
+            }
+            else if (millis() - this->_lastEdge > this->_debounceTimeout)
+            {
+                this->_previousShortPressState = this->_state;
+                this->_triggerCallBack(CALLBACK_RELEASE);
+            }
+        }
+
+        this->_lastEdge = millis();
     }
 
-    if (millis() - this->_lastEdge > this->_debounceTimeout)   // button held down for at least 50ms
+    if (isPressed)
     {
-        this->_state = this->read();
-        this->_handleCallBacks();
+        if (millis() - this->_lastEdge > this->_longPressTimeout)
+        {
+            if (this->_state != this->_previousLongPressState)
+            {
+                this->_previousLongPressState = this->_state;
+                this->_triggerCallBack(CALLBACK_LONGPRESS);
+            }
+        }
+        else if (millis() - this->_lastEdge > this->_debounceTimeout)
+        {
+            if (this->_state != this->_previousShortPressState)
+            {
+                this->_previousShortPressState = this->_state;
+                this->_triggerCallBack(CALLBACK_PRESS);
+            }
+        }
     }
 }
 
-void Button::_handleCallBacks(void)
+void Button::_triggerCallBack(CallBackType_t type)
 {
-    if (this->_state != this->_previousState)   // button edge
-    {
-        this->_previousState = this->_state;
-
-        if (this->pressed())
-        {
-            if (this->_CallBackOnPress != nullptr) this->_CallBackOnPress();
-        }
-        else
-        {
-            if (this->_CallBackOnRelease != nullptr) this->_CallBackOnRelease();
-        }
-    }
+    if (this->_CallBacks[type] != nullptr) this->_CallBacks[type]();
 }
 
 bool Button::pressed(void) { return this->_state; }

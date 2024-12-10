@@ -23,9 +23,9 @@ void Button::begin(bool triggerCallbackOnFirstLoop)
 {
     this->_lastEdge = millis();
     this->_state = this->read();
-    this->_previousLongPressState = this->_state;   // prevent the long press from triggering
+    this->_previousLongPressState = this->_state; // prevent the long press from triggering
 
-    if (triggerCallbackOnFirstLoop && this->pressed())   // only trigger the ACTIVE state
+    if (triggerCallbackOnFirstLoop && this->pressed()) // only trigger the ACTIVE state
         this->_previousShortPressState = !this->_state;
     else
         this->_previousShortPressState = this->_state;
@@ -35,7 +35,8 @@ bool Button::read(void) { return digitalRead(this->_pin) ^ this->_inversed; }
 
 void Button::tick(void)
 {
-    if (this->isPinSet() == false) return;
+    if (this->isPinSet() == false)
+        return;
 
     bool isPressed = this->read();
     bool edge = (isPressed != this->_state);
@@ -43,9 +44,7 @@ void Button::tick(void)
     if (edge)
     {
         this->_state = isPressed;
-        ButtonEdgeType_t edgeType = (this->_state) ? BUTTON_EDGE_RISING : BUTTON_EDGE_FALLING;
-
-        if (edgeType == BUTTON_EDGE_FALLING)
+        if (isPressed == false)
         {
             if (millis() - this->_lastEdge > this->_longPressTimeout)
             {
@@ -86,7 +85,8 @@ void Button::tick(void)
 
 void Button::_triggerCallBack(CallBackType_t type)
 {
-    if (this->_CallBacks[type] != nullptr) this->_CallBacks[type]();
+    if (this->_CallBacks[type] != nullptr)
+        this->_CallBacks[type]();
 }
 
 bool Button::pressed(void) { return this->_state; }

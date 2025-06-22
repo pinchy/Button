@@ -59,9 +59,7 @@ void Button::tick(void)
     if (edge)
     {
         this->_state = isPressed;
-        ButtonEdgeType_t edgeType = (this->_state) ? BUTTON_EDGE_RISING : BUTTON_EDGE_FALLING;
-
-        if (edgeType == BUTTON_EDGE_FALLING)
+        if (isPressed == false)
         {
             if (millis() - this->_lastEdge > this->_longPressTimeout)
             {

@@ -33,6 +33,7 @@ class Button
         bool _state = false;
         bool _previousShortPressState = false;
         bool _previousLongPressState = false;
+        bool _triggerCallBackOnFirstLoop = false;
         bool _inversed = false;
 
         unsigned long _lastEdge = 0;
@@ -43,6 +44,7 @@ class Button
         CallBack_t _CallBacks[CALLBACK_NUM] = {nullptr, nullptr, nullptr};
 
         void _triggerCallBack(CallBackType_t type);
+        void _pressOnFirstLoop(void);
 
     public:
         Button();

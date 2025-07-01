@@ -54,16 +54,16 @@ void Button::tick(void)
 
     bool isPressed = this->read();
     bool edge = (isPressed != this->_state);
+    this->_state = isPressed;
     unsigned long currentTime = millis();
     bool longPress = (currentTime - this->_lastEdge > this->_longPressTimeout);
     bool shortPress = (currentTime - this->_lastEdge > this->_debounceTimeout);
 
     if (edge && shortPress)
     {
-        this->_state = isPressed;
-
         if (isPressed == true)
         {
+            // Serial.println(" ------- pressed");
             this->_triggerCallBack(CALLBACK_PRESS);
         }
 
@@ -71,10 +71,12 @@ void Button::tick(void)
         {
             if (longPress)
             {
+                // Serial.println(" ------- released (long)");
                 this->_triggerCallBack(CALLBACK_LONGRELEASE);
             }
             else
             {
+                // Serial.println(" ------- released (short)");
                 this->_triggerCallBack(CALLBACK_RELEASE);
             }
         }
@@ -87,6 +89,7 @@ void Button::tick(void)
     {
         if (!this->_longPressTriggered)
         {
+            // Serial.println(" ------- long pressed");
             this->_triggerCallBack(CALLBACK_LONGPRESS);
             this->_longPressTriggered = true;
         }
@@ -98,4 +101,8 @@ void Button::_triggerCallBack(CallBackType_t type)
     if (this->_CallBacks[type] != nullptr) this->_CallBacks[type]();
 }
 
-bool Button::pressed(void) { return this->_state; }
+bool Button::pressed(void)
+{
+    this->_state = this->read();
+    return this->_state;
+}

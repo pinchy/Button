@@ -74,27 +74,27 @@ void Button::tick(void)
             }
         }
 
-        this->_lastEdge = millis();
-    }
+        else
+        {
+            if (millis() - this->_lastEdge > this->_longPressTimeout)
+            {
+                if (this->_state != this->_previousLongPressState)
+                {
+                    this->_previousLongPressState = this->_state;
+                    this->_triggerCallBack(CALLBACK_LONGPRESS);
+                }
+            }
+            else if (millis() - this->_lastEdge > this->_debounceTimeout)
+            {
+                if (this->_state != this->_previousShortPressState)
+                {
+                    this->_previousShortPressState = this->_state;
+                    this->_triggerCallBack(CALLBACK_PRESS);
+                }
+            }
+        }
 
-    if (isPressed)
-    {
-        if (millis() - this->_lastEdge > this->_longPressTimeout)
-        {
-            if (this->_state != this->_previousLongPressState)
-            {
-                this->_previousLongPressState = this->_state;
-                this->_triggerCallBack(CALLBACK_LONGPRESS);
-            }
-        }
-        else if (millis() - this->_lastEdge > this->_debounceTimeout)
-        {
-            if (this->_state != this->_previousShortPressState)
-            {
-                this->_previousShortPressState = this->_state;
-                this->_triggerCallBack(CALLBACK_PRESS);
-            }
-        }
+        this->_lastEdge = millis();
     }
 }
 

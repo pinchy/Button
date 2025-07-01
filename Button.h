@@ -31,8 +31,7 @@ class Button
     private:
         int _pin = -1;
         bool _state = false;
-        bool _previousShortPressState = false;
-        bool _previousLongPressState = false;
+        bool _longPressTriggered = false;
         bool _triggerCallBackOnFirstLoop = false;
         bool _inversed = false;
 

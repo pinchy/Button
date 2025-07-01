@@ -23,7 +23,7 @@ void Button::begin(bool triggerCallbackOnFirstLoop)
 {
     this->_lastEdge = 0;
     this->_state = this->read();
-    this->_previousLongPressState = this->_state;   // prevent the long press from triggering
+    this->_longPressTriggered = false;
     this->_triggerCallBackOnFirstLoop = triggerCallbackOnFirstLoop;
 }
 
@@ -46,7 +46,6 @@ bool Button::read(void) { return digitalRead(this->_pin) ^ this->_inversed; }
 void Button::tick(void)
 {
     if (this->isPinSet() == false) return;
-
     if (this->_triggerCallBackOnFirstLoop)
     {
         this->_pressOnFirstLoop();
@@ -55,46 +54,42 @@ void Button::tick(void)
 
     bool isPressed = this->read();
     bool edge = (isPressed != this->_state);
+    unsigned long currentTime = millis();
+    bool longPress = (currentTime - this->_lastEdge > this->_longPressTimeout);
+    bool shortPress = (currentTime - this->_lastEdge > this->_debounceTimeout);
 
-    if (edge)
+    if (edge && shortPress)
     {
         this->_state = isPressed;
-        if (isPressed == false)
+
+        if (isPressed == true)
         {
-            if (millis() - this->_lastEdge > this->_longPressTimeout)
-            {
-                this->_triggerCallBack(CALLBACK_LONGRELEASE);
-                this->_previousShortPressState = this->_state;
-                this->_previousLongPressState = this->_state;
-            }
-            else if (millis() - this->_lastEdge > this->_debounceTimeout)
-            {
-                this->_previousShortPressState = this->_state;
-                this->_triggerCallBack(CALLBACK_RELEASE);
-            }
+            this->_triggerCallBack(CALLBACK_PRESS);
         }
 
         else
         {
-            if (millis() - this->_lastEdge > this->_longPressTimeout)
+            if (longPress)
             {
-                if (this->_state != this->_previousLongPressState)
-                {
-                    this->_previousLongPressState = this->_state;
-                    this->_triggerCallBack(CALLBACK_LONGPRESS);
-                }
+                this->_triggerCallBack(CALLBACK_LONGRELEASE);
             }
-            else if (millis() - this->_lastEdge > this->_debounceTimeout)
+            else
             {
-                if (this->_state != this->_previousShortPressState)
-                {
-                    this->_previousShortPressState = this->_state;
-                    this->_triggerCallBack(CALLBACK_PRESS);
-                }
+                this->_triggerCallBack(CALLBACK_RELEASE);
             }
         }
 
-        this->_lastEdge = millis();
+        this->_lastEdge = currentTime;
+        this->_longPressTriggered = false;
+    }
+
+    else if (isPressed && longPress)
+    {
+        if (!this->_longPressTriggered)
+        {
+            this->_triggerCallBack(CALLBACK_LONGPRESS);
+            this->_longPressTriggered = true;
+        }
     }
 }
 

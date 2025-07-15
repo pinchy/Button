@@ -40,7 +40,7 @@ class Button
         unsigned long _longPressTimeout = (unsigned long) BUTTON_DEFAULT_LONGPRESS;
 
 
-        CallBack_t _CallBacks[CALLBACK_NUM] = {nullptr, nullptr, nullptr};
+        CallBack_t _CallBacks[CALLBACK_NUM] = {nullptr};
 
         void _triggerCallBack(CallBackType_t type);
         void _pressOnFirstLoop(void);

@@ -69,7 +69,7 @@ void Button::tick(void)
 
         else
         {
-            if (longPress)
+            if (longPress && this->_CallBacks[CALLBACK_LONGRELEASE] != nullptr)   // no long release set, no point checking.
             {
                 // Serial.println(" ------- released (long)");
                 this->_triggerCallBack(CALLBACK_LONGRELEASE);
@@ -105,4 +105,17 @@ bool Button::pressed(void)
 {
     this->_state = this->read();
     return this->_state;
+}
+
+void Button::checkPressedAndTrigger(void)
+{
+    if (this->isPinSet() == false) return;
+    if (this->pressed())
+    {
+        this->_triggerCallBack(CALLBACK_PRESS);
+    }
+    else
+    {
+        this->_triggerCallBack(CALLBACK_RELEASE);
+    }
 }

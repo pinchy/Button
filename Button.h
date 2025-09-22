@@ -54,6 +54,7 @@ class Button
         void setCallBack(CallBack_t cb, CallBackType_t type);
         void setDebounceTimeout(unsigned long t) { this->_debounceTimeout = t; };
         void setLongPressTimeout(unsigned long t) { this->_longPressTimeout = t; };
+        void checkPressedAndTrigger(void);
 
         void setPin(int p, bool i = false);
         int getPin() { return this->_pin; };
